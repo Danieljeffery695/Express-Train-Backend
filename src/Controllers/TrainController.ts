@@ -14,7 +14,6 @@ import type {
 
 export const createTrain = handleAsyncErr(
 	async (req: Request, res: Response, _next: NextFunction) => {
-		
 		const userId = req.cookies;
 		if(!userId.access_token[0].access_token) throw new Error("Not authorize for such actions");
 
