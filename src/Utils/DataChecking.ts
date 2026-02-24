@@ -107,3 +107,11 @@ export interface ITrainBooking {
 	totalPrice: number;
 	status: string
 }
+
+export interface ITrainSeatInfo {
+	train: Types.ObjectId | ITrainCreate;
+	availableSeats: number;
+	availableTopSeats: number;
+	availableMiddleSeats: number;
+	availableLowSeats: number;
+}
