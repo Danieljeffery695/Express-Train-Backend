@@ -22,6 +22,9 @@ export function create_Train_Auth(
 			state,
 			country,
 			seatCount,
+			departureTime,
+			arrivalTime,
+			status
 		} = req.body;
 		if (
 			!name ||
@@ -32,7 +35,10 @@ export function create_Train_Auth(
 			!city ||
 			!state ||
 			!country ||
-			!seatCount
+			!seatCount ||
+			!departureTime ||
+			!arrivalTime ||
+			!status
 		)
 			throw new Error("Sorry you can't leave any field empty");
 		// Minimizing the seatCount to below 300 sound reasonable at least.
@@ -62,6 +68,8 @@ export function create_Train_Auth(
 					errorMessage: "Sorry, Not a valid Country State.",
 				};
 
+		// Filter departure date to match future dates and not past date. same goes for arrival date.
+
 		const arrLow: Array<string> = [
 			name,
 			number,
@@ -72,6 +80,9 @@ export function create_Train_Auth(
 			state,
 			country,
 			seatCount,
+			departureTime,
+			arrivalTime,
+			status
 		].map((e) => e.toLowerCase().replace(/[^a-zA-Z0-9@.]/g, ""));
 		const { errState, errMsg } = CheckBool(check1, check2, check3);
 		if (!errState) throw new Error(`Wrong-Country-Msg: ${errMsg}`);
