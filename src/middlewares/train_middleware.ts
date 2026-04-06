@@ -180,3 +180,67 @@ export function update_Train_Auth(
 
 	next();
 }
+
+export function create_Train_Booking_Auth(
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) {
+	try {
+		if (!req.body) throw new Error("Something missing");
+		const {
+			coach,
+			seatNumber,
+			seatType,
+			isWindowAvailable,
+			isAvailable,
+			user,
+			train,
+			schedule,
+			seats,
+			passengers,
+			totalPrice,
+			status
+		} = req.body;
+		if (
+			!coach ||
+			!seatNumber ||
+			!seatType ||
+			!isWindowAvailable ||
+			!isAvailable ||
+			!user ||
+			!train ||
+			!schedule ||
+			!seats ||
+			!passengers ||
+			!totalPrice ||
+			!status
+		)
+			throw new Error("Sorry you can't leave any field empty");
+		// Minimizing the seatCount to below 300 sound reasonable at least.
+
+		
+		// Filter departure date to match future dates and not past date. same goes for arrival date.
+
+		const arrLow: Array<string> = [
+			coach,
+			seatNumber,
+			seatType,
+			isWindowAvailable,
+			isAvailable,
+			user,
+			train,
+			schedule,
+			seats,
+			passengers,
+			totalPrice,
+			status
+		].map((e) => e.toLowerCase().replace(/[^a-zA-Z0-9@.]/g, ""));
+		res.locals.createTrainBookingData = arrLow;
+	} catch (error: any) {
+		catchError(error, error.message, 400, next);
+		return;
+	}
+
+	next();
+}
