@@ -8,6 +8,11 @@ const trainBooking = new mongoose.Schema<ITrainBooking>(
 			ref: "Users",
 		},
 
+		train: {
+			type: Schema.Types.ObjectId,
+			ref: "Trains",
+		},
+
 		schedule: {
 			type: Schema.Types.ObjectId,
 			ref: "Schedule",
@@ -25,6 +30,12 @@ const trainBooking = new mongoose.Schema<ITrainBooking>(
 
 		totalPrice: {
 			type: Number,
+		},
+
+		bookingCode: {
+			type: String,
+			unique: true,
+			required: [true, "can't book a train without booking code"]
 		},
 
 		status: {

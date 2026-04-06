@@ -22,7 +22,7 @@ const seatSchema = new mongoose.Schema<ITrainSeats>(
             default: "Type1",
         },
 
-        isWindow: { type: Boolean },
+        isWindowAvailable: { type: Boolean },
 
         isAvailable: {type: Boolean},
 
