@@ -81,7 +81,7 @@ export interface ITrainSeats {
 	coach: Types.ObjectId | ITrainCoach;
 	seat_number: string;
 	seat_type: string;
-	isWindow: boolean;
+	isWindowAvailable: boolean;
 	isAvailable: boolean;
 }
 
@@ -101,10 +101,12 @@ export type passengersTypes = {
 
 export interface ITrainBooking {
 	user: Types.ObjectId | IUserCreate;
+	train: Types.ObjectId | ITrainCreate
 	schedule: Types.ObjectId | ITrainSchedule;
 	seats: Types.ObjectId | ITrainSeats;
 	passengers: passengersTypes;
 	totalPrice: number;
+	bookingCode: string;
 	status: string
 }
 
