@@ -19,6 +19,7 @@ import { handleAppError } from "./Utils/AppError";
 
 // Global Middlewares
 const app = express();
+app.use(cors());
 const limiter = rateLimit({
 	windowMs: 10 * 60 * 1000, // 10 minutes
 	limit: 50, // Limit each IP to 50 requests per `window` (here, per 15 minutes).
@@ -28,7 +29,6 @@ const limiter = rateLimit({
 });
 
 app.use(helmet());
-app.use(cors());
 app.use(limiter);
 app.use(cookieParser());
 app.use(express.json());

@@ -27,7 +27,8 @@ export const createToken = (id: Types.ObjectId) => {
 export const createUser = handleAsyncErr(
 	async (req: Request, res: Response, next: NextFunction) => {
 		//This locals data is accessible everywhere across all chained request sent to the same endpoints
-		const ip = await publicIp();
+		// const ip = await publicIp();
+		const ip = "105.113.113.213";
 		const countDoc =
 			(await Users.countDocuments()) > 0
 				? { role: "user", isAdmin: false }
