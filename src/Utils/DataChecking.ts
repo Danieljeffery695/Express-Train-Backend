@@ -117,3 +117,48 @@ export interface ITrainSeatInfo {
 	availableMiddleSeats: number;
 	availableLowSeats: number;
 }
+
+export type RoutesStatus = "Active" | "InActive" | "Under Maintenance" | "Closed"; // along the way we can add more status info
+
+export type RouteVisibility = "Draft" | "Published" | "Archived";
+
+export interface RouteStop {
+	station: Types.ObjectId | ITrainStation;
+	sequence: number;
+	distanceFromOriginKm: number;
+}
+
+
+export interface RoutesDetails {
+	intermediate_stops: string;
+	estimated_journey_duration: number;
+	distance_if_available: number;
+	operating_days: string;
+	train_service_info: string;
+	current_service_status: string;
+}
+
+export interface ExploreRoutes {
+	name: string;
+	code: string;
+	slug: string;
+	description: string;
+	shortDescription: string
+	image: string;
+	originStation: Types.ObjectId;
+	destinationStation: Types.ObjectId;
+	stops: RouteStop[];
+	distanceKm: number;
+	estimatedDurationMinutes: number;
+	scenicHighlights: string[];
+	status: RoutesStatus
+	visibility: RouteVisibility;
+	isFeatured: boolean;
+	// createdAt: Date;
+	// updatedAt: Date;
+	// route: string;
+	// departure: string;
+	// arrival: string;
+	// status: RoutesStatus;
+	// details: RoutesDetails;
+}
