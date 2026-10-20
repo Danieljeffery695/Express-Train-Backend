@@ -123,7 +123,7 @@ export type RoutesStatus = "Active" | "InActive" | "Under Maintenance" | "Closed
 export type RouteVisibility = "Draft" | "Published" | "Archived";
 
 export interface RouteStop {
-	station: Types.ObjectId | ITrainStation;
+	station: Types.ObjectId;
 	sequence: number;
 	distanceFromOriginKm: number;
 }

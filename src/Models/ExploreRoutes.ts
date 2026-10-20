@@ -17,6 +17,12 @@ const routeStopSchema = new Schema<RouteStop>({
             message: "Sequence must be an integer",
         } 
     },
+
+    distanceFromOriginKm: {
+        type: Number,
+        required: true,
+        min: 100
+    },
 },
     {
         _id: false,
@@ -78,7 +84,8 @@ const explore_routes_Schema = new mongoose.Schema<ExploreRoutes>(
                 validator: function(stops: RouteStop[]) {
                     const sequences = stops.map((stop) => stop.sequence);
 
-                    return (new Set(sequences).size === sequences.length)
+                    return (new Set(sequences).size === sequences.length) // Set(sequences) make sure duplicate are remove and return the new value and it size. 
+                    // so if for any reason there are duplicates then the sequence.length won't match the size anymore. which resolve to validation failure
                 }, 
                 message: "Stop sequence numbers must be unique.",
             },
@@ -136,6 +143,8 @@ const explore_routes_Schema = new mongoose.Schema<ExploreRoutes>(
         timestamps: true,
     }
 );
+
+// All validators will be backed on the frontend as well. so no middleware for explore routes now until we see the need for one. 
 
 export type RouteDocument = HydratedDocument<ExploreRoutes> // HydratedDocument<ExploreRoutes> tells typescript that an object is a live, full-fledged Mongoose document
 // so some mongoose method will be available e.g .save(), .toObject() or getters/virtuals.

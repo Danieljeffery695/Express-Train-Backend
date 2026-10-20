@@ -3,6 +3,9 @@ import jwt, { type GetPublicKeyOrSecret } from "jsonwebtoken";
 import { handleAsyncErr } from "../Utils/AsyncError";
 import catchError from "../Utils/CatchError";
 
+// Grabbing the headers name: "Authorization" after login to validate routes.
+// We're using the bearer token (Jwt token) method for the fetching of the token
+
 if (process.env.JWT_SECRET)
 	var jwt_secret: string | Buffer<ArrayBufferLike> | GetPublicKeyOrSecret =
 		process.env.JWT_SECRET;
