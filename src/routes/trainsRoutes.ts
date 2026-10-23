@@ -4,6 +4,7 @@ import {
 	deleteTrain,
 	getAllTrain,
 	updateTrain,
+	routesCreation
 } from "../Controllers/TrainController";
 import {
 	create_Train_Auth,
@@ -13,7 +14,10 @@ import { protectRoutes } from "../Controllers/AuthController";
 
 const trainRouter = Router();
 
-trainRouter.post("/api/v1/createTrain", protectRoutes, create_Train_Auth, createTrain);
+trainRouter
+.post("/api/v1/createTrain", protectRoutes, create_Train_Auth, createTrain)
+.post("/api/v1/createRoute", protectRoutes, routesCreation)
+
 
 trainRouter
 	.get("/api/v1/getTrains", protectRoutes, getAllTrain)
