@@ -118,7 +118,8 @@ export const createStation = async (data: ITrainStation) => {
 	return newStation._id;
 };
 
-type SearchFilter<T> = Partial<Record<keyof T, unknown>>;
+type SearchFilter<T> = Partial<Record<keyof T, unknown>>; // Keys and value. keys type is generic while values remain unknown. Record utility map a set of property keys to a specific value type.
+// Partial utility add ? modifier to all properties. subsets of the origin object is allowed so it's not necessary to provide all properties
 
 export const buildFilter = <T>(obj: SearchFilter<T>) => {
 	return Object.fromEntries(
@@ -143,8 +144,8 @@ let searchTrainFilter: (v: any) => boolean;
 export const getAllTrain = handleAsyncErr(
 	async (req: Request, res: Response): Promise<void> => {
 		const userId = req.cookies;
-		const currentDate_now = new Date();
-		const twelveDaysbehindDate = currentDate_now.setDate(
+		const currentDate_now = new Date(); // Getting Current Date. 
+		const twelveDaysbehindDate = currentDate_now.setDate( // going back twelve days ago. users can only access train that have been active for only twelve days. no more than twelve days
 			currentDate_now.getDate() - 12,
 		);
 		const { name, trainType: train_Types, coachType, seatCount } = req.query;
@@ -167,11 +168,11 @@ export const getAllTrain = handleAsyncErr(
 			searchTrainFilter = (v: TrainFilter_Type1) =>
 				v.coaches !== null &&
 				v.coaches !== undefined &&
-				v.createdAt > twelveDaysbehindDate;
+				v.createdAt > twelveDaysbehindDate; // checking if the train creation date is over twelve days. then return false.
 		}
 
 		const objFilter = Object.entries(allTrains).filter(([_k, v]) =>
-			searchTrainFilter(v),
+			searchTrainFilter(v), // any false value will be filter out
 		);
 
 		res.status(200).json({
@@ -410,14 +411,15 @@ export const routesCreation = handleAsyncErr(
 		Promise.all(trdd).then((data) => { 
 			const dataItem = data.map((item) => item[0]._id); // getting only the id.
 			dataItem.forEach((item) => testingDuplicateStation.add(item.toString())) // looping through the data and turning all the ObjectId to string for the checking of duplicates.
-			if(stops.length !== testingDuplicateStation.size) throw new Error("duplicate station not allowed");
+			if(stops.length !== testingDuplicateStation.size) throw new Error("duplicate station not allowed"); // when we throw this error the rest of the code below is ignore and we move to the catch block. i mean the upper catch block
 
-				Explore_Routes.create(req.body).then((data) => {
+				Explore_Routes.create(req.body).then((data) => { //
 					res.status(201).json({
 						status: "Success in creating explore route",
 						message: data
 					});
-				}).catch((err: Error) => {
+				}).catch((err: Error) => { // gotta send a respond here or else the client will receive nothing because the outer catch can't get the error from this then/catch block
+					// but when we send a respond in this catch the next the catch won't be trigger because no error was receive in the upper then block
 					res.status(400).json({
 						status: "Request Failed",
 						message: err.message
@@ -426,33 +428,23 @@ export const routesCreation = handleAsyncErr(
 
 		
 		})
-		.catch((err: Error) => {
+		.catch((err: Error) => { // upper catch block and catch any upper error. any error happening outside of this then/catch will be handle by handleAsyncErr()
 			res.status(400).json({
 				status: "Request Failed",
 				message: err.message
 			});
 		});
 
-		//  The uses for try/catch being here is complicated
-		// without the try/catch here when we throw error at the top. that error won't stop the code from reaching the bottom. then that lead to error ('Cannot set headers after they are sent to the client')
-		// maybe because we already sent that error and cannot send the same thing twice at runtime. leading to two same headers being set. that crash the server
-		// i am also thinking of something simple. like an 'if/else' condition. 
-		// try {
-			// const createData = await Explore_Routes.create(req.body);
-			
-			// res.status(201).json({
-				// status: "Success in creating explore route",
-				// message: createData
-			// }); // getting all flirted required data from request body and any unrelated data will be ignore by mongoose model.
-		// } catch (error) {
-			// res.status(400).json({
-				// status: "Request Failed",
-				// message: error
-			// });
-
-			// return;
-		// }
 	}
 );
 
 // gonna create routes editing for later updates
+
+// getting train station and filters
+
+export const gettingAllStation = handleAsyncErr(
+	async (req: Request, res: Response, next: NextFunction) => {
+		// List of Plans and Objective to implement in this function
+
+	}
+)
