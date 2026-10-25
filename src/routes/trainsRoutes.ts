@@ -4,7 +4,8 @@ import {
 	deleteTrain,
 	getAllTrain,
 	updateTrain,
-	routesCreation
+	routesCreation,
+	gettingAllStation
 } from "../Controllers/TrainController";
 import {
 	create_Train_Auth,
@@ -21,6 +22,7 @@ trainRouter
 
 trainRouter
 	.get("/api/v1/getTrains", protectRoutes, getAllTrain)
+	.get("/api/v1/getStations", protectRoutes, gettingAllStation)
 	.patch("/api/v1/updateTrain/:id", protectRoutes, update_Train_Auth, updateTrain)
 	.delete("/api/v1/deleteTrain/:id", protectRoutes, deleteTrain);
 

@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import type { Types, UpdateResult, UpdateWriteOpResult } from "mongoose";
+import type { Types, UpdateResult, UpdateWriteOpResult, QueryFilter } from "mongoose";
 import TrainCoach from "../Models/Coaches";
 import TrainStation from "../Models/Stations";
 import TrainRoute from "../Models/TrainRoute";
@@ -123,7 +123,7 @@ type SearchFilter<T> = Partial<Record<keyof T, unknown>>; // Keys and value. key
 
 export const buildFilter = <T>(obj: SearchFilter<T>) => {
 	return Object.fromEntries(
-		Object.entries(obj).filter(([_k, v]) => v !== undefined && v !== ""),
+		Object.entries(obj).filter(([_k, v]) => v !== undefined && v !== ""), // checking and filtering null values. when search result does not match any corresponding value in our database. specially reference model like coaches and routes.
 	);
 };
 
@@ -156,8 +156,10 @@ export const getAllTrain = handleAsyncErr(
 					path: "coaches",
 					match: buildFilter({ coachType, seatCount }),
 				});
+				// searchTrainFilter helps filter out null or undefined coaches. when we search for train; all train and populate it while matching some value: coachType or seatcount
+				// when it match one or nothing, it still return all train as requested from the query above but coaches that does'nt fit the criteria (coachType or seatCount listed in the search) are simply return as null. so we have to filter them out and return the corresponding amount of record or nothing at all.
 			searchTrainFilter = (v: TrainFilter_Type) =>
-				v.coaches !== null && v.coaches !== undefined;
+				v.coaches !== null && v.coaches !== undefined; 
 		} else {
 			allTrains = await Trains.find(buildFilter({ name, train_Types }))
 				.populate<ITrainRouteCreate>("route")
@@ -168,12 +170,15 @@ export const getAllTrain = handleAsyncErr(
 			searchTrainFilter = (v: TrainFilter_Type1) =>
 				v.coaches !== null &&
 				v.coaches !== undefined &&
-				v.createdAt > twelveDaysbehindDate; // checking if the train creation date is over twelve days. then return false.
+				v.createdAt > twelveDaysbehindDate; // checking if the train creation date is over twelve days. then return false. this filtering is for users only and admin can get train ranging from 12 days ago.
 		}
+
+		if(!allTrains) throw new Error("Search result not found");
 
 		const objFilter = Object.entries(allTrains).filter(([_k, v]) =>
 			searchTrainFilter(v), // any false value will be filter out
 		);
+
 
 		res.status(200).json({
 			result: objFilter.length,
@@ -445,6 +450,35 @@ export const routesCreation = handleAsyncErr(
 export const gettingAllStation = handleAsyncErr(
 	async (req: Request, res: Response, next: NextFunction) => {
 		// List of Plans and Objective to implement in this function
+		// ... users must be able to find stations by all parameters (station_name, code, city, state, country)
+		// client data comes from query params
 
+		const { search_data } = req.query;
+		const stationCounts = await TrainStation.estimatedDocumentCount(); // counting all documents in the collection
+		// TrainStation.collection.createIndex({"$**": "text"})
+		const search_query_convert_regx = typeof search_data === 'string' ? search_data : ''; // checking to make sure search query is string or convert is to string. to avoid the error 'not assignable to type Condition<ApplyBasicQueryCasting<string> | undefined>
+		// because 'req.query.search_data' type is infers as 'string | ParsedQs | string[] | undefined'. we are going to use the value for mongoose-(mongoose rejects undefined inside $regex) and the value can not be undefined or a non-string. 
+		const newSearchRegx = new RegExp(search_query_convert_regx, 'i') // turning search_query_convert_regx to regex applicable because mongoose $regex typescript definitions only permitted fields explicitly typed as string and regex format
+		const findStationQuery: QueryFilter<ITrainStation> = {$or: [{station_name: {$regex: newSearchRegx}}, // building our filter explicitly and filter type using the mongoose 'QueryFilter' to allow mongoDB filter types
+			 {code: {$regex: newSearchRegx}}] // searching all fields of the collection for users search value (aka search_data coming from client) and returning them
+		}
+		const allStation = await TrainStation.find(findStationQuery).lean(); // returning search values as read-only searches as plain JSON objects cause of 'lean';
+			// searchTrainFilter = (v: TrainFilter_Type) =>
+				// v.coaches !== null && v.coaches !== undefined; 
+		
+		if(stationCounts && !allStation.length) throw new Error("Search result not found"); // checking if any documents is in the collection and checking if we got anything back from our search
+		// if document is zero "stationCounts" turn false and we don't throw error. instead we show a success message that implies no station registered currently.
+		// if document is more than zero "stationCounts" turn true then we check if our find query return some. if it return [] then "!allStation.length" throw error
+
+		// const objFilter = Object.entries(allTrains).filter(([_k, v]) =>
+			// searchTrainFilter(v), // any false value will be filter out
+		// );
+
+		res.status(200).json({
+			result: allStation.length,
+			data: allStation,
+		});
+		return;
+		
 	}
 )
